@@ -402,9 +402,9 @@
     <header class="intro">
       <p class="eyebrow">— Brief de proyecto</p>
       <h1>Antes de cotizarte, necesitamos entender <em>tu proyecto</em>.</h1>
-      <p>Son <strong>14 preguntas</strong>. Tardás <strong>7 minutos</strong>. Las respuestas se guardan solas mientras escribís, así que podés volver más tarde si necesitás.</p>
+      <p>Son <strong>15 preguntas</strong>. Tardás <strong>7 minutos</strong>. Las respuestas se guardan solas mientras escribís, así que podés volver más tarde si necesitás.</p>
       <p>Hay tres o cuatro preguntas que parecen amplias o difíciles. No las pienses demasiado: respondé lo primero que te salga. Lo importante es tener una primera versión sincera, no la perfecta.</p>
-      <div class="time-badge">⏱ 7 minutos · 14 preguntas</div>
+      <div class="time-badge">⏱ 7 minutos · 15 preguntas</div>
     </header>
 
     <form id="briefForm" novalidate>
@@ -466,6 +466,12 @@
           <span class="hint">Lo más concreto posible. "Somos los mejores" no sirve; "tenemos 20 años de experiencia trabajando con bancos" sí.</span>
           <textarea name="negocio_diferencial" data-label="Diferencial" required class="tall"></textarea>
           <span class="field-error">Es la pregunta más importante del brief.</span>
+        </div>
+
+        <div class="field">
+          <label>¿Tenés sitio web actual?</label>
+          <span class="hint">Si sí, pegá el link. Nos sirve para ver qué tenés hoy, qué textos podemos reusar y qué hay que mejorar. Si no tenés, dejá vacío o poné "no tengo".</span>
+          <input type="text" name="negocio_web_actual" data-label="Sitio web actual" placeholder="Ej: https://miempresa.com / no tengo" />
         </div>
       </section>
 
@@ -540,7 +546,13 @@
 
         <div class="field">
           <label>Pedidos especiales, ideas raras, lo que sea<span class="req">*</span></label>
-          <span class="hint">Esta es <strong>la pregunta más importante</strong>. Acá ponés todo lo que no entró en las anteriores: una funcionalidad puntual, un easter egg, una sensación, un recuerdo, una referencia, una manía. Cualquier cosa que sirva para imaginar tu web. Si no se te ocurre nada, poné "nada".</span>
+          <span class="hint">Esta es <strong>la pregunta más importante</strong>. Acá ponés lo que no entró en las anteriores. Sé lo más concreto posible. Ejemplos:<br/>
+          • "Quiero una sección de casos de éxito con nombres y montos"<br/>
+          • "Una calculadora de ROI"<br/>
+          • "Un video de presentación en el hero"<br/>
+          • "Una galería de proyectos con antes/después"<br/>
+          • "Animaciones suaves cuando se scrollea"<br/>
+          Si no se te ocurre nada, poné "nada".</span>
           <textarea name="vision_libre" data-label="Pedidos especiales / Lo que sea" required class="tall"></textarea>
           <span class="field-error">Aunque pongas "nada", necesitamos una respuesta.</span>
         </div>
@@ -734,13 +746,28 @@
       var field = el.closest('.field');
       if (!field) return;
       var hasValue = false;
+      var errorEl = field.querySelector('.field-error');
+
       if (el.type === 'radio') {
         hasValue = !!form.querySelector('[name="' + el.name + '"]:checked');
       } else if (el.type === 'email') {
         hasValue = el.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      } else if (el.type === 'tel') {
+        // Para teléfono: debe tener al menos 8 dígitos (sin contar +, espacios, guiones)
+        var digits = el.value.replace(/\D/g, '');
+        hasValue = digits.length >= 8;
+        // Mensaje específico si está incompleto
+        if (errorEl) {
+          if (el.value.trim() && digits.length < 8) {
+            errorEl.textContent = 'El número parece incompleto. Incluí código de país y número completo.';
+          } else {
+            errorEl.textContent = 'Necesitamos un canal directo.';
+          }
+        }
       } else {
         hasValue = !!el.value.trim();
       }
+
       if (!hasValue) {
         field.classList.add('has-error');
         ok = false;
